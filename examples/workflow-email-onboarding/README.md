@@ -36,7 +36,7 @@ Optional:
 npm run dev
 ```
 
-Trigger the signup workflow (welcome email now, check-in after 7 days):
+Trigger the signup workflow (welcome email now, onboarding email after 5 seconds):
 
 ```bash
 curl -X POST --json '{"email":"hello@example.com"}' http://localhost:3000/api/signup
@@ -59,7 +59,7 @@ npx workflow inspect runs
 
 ### Workflow orchestration
 
-`src/workflows/user-signup.ts` creates a user, sends a welcome email, sleeps for 7 days without holding a server open, then sends a follow-up email.
+`src/workflows/user-signup.ts` creates a user, sends a welcome email, sleeps for 5 seconds without holding a server open, then sends an onboarding email.
 
 ### Step functions with Resend
 
@@ -82,6 +82,6 @@ src/
     welcome/route.ts   # POST /api/welcome
   workflows/
     steps.ts           # "use step" functions (Resend, user lookup)
-    user-signup.ts     # 7-day onboarding workflow
+    user-signup.ts     # signup onboarding workflow (5s delay)
     welcome.ts         # personalized welcome workflow
 ```

@@ -1,23 +1,23 @@
 import { sleep } from "workflow";
 import {
   createUser,
-  sendOneWeekCheckInEmail,
+  sendOnboardingEmail,
   sendWelcomeEmail,
 } from "@/workflows/steps";
 
-export async function userSignup(email: string) {
+export async function handleUserSignup(email: string) {
   "use workflow";
 
   console.log(`Starting signup workflow for ${email}`);
 
   const user = await createUser(email);
-  await sendWelcomeEmail(email);
+  await sendWelcomeEmail(user);
 
-  // Pause for 7 days without consuming compute resources.
-  await sleep("7 days");
-  await sendOneWeekCheckInEmail(email);
+  await sleep("5s");
 
-  console.log(`Signup workflow complete for ${user.id}`);
+  await sendOnboardingEmail(user);
 
-  return { userId: user.id, status: "done" as const };
+  console.log("Workflow is complete! Run 'npx workflow web' to inspect your run");
+
+  return { userId: user.id, status: "onboarded" as const };
 }
