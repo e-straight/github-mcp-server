@@ -79,15 +79,15 @@ export async function sendEmail(input: {
   return { status: "sent" as const, id: resp.data?.id };
 }
 
-export async function sendWelcomeEmail(email: string) {
+export async function sendWelcomeEmail(user: Pick<User, "id" | "email">) {
   "use step";
 
-  console.log(`Sending welcome email to ${email}`);
+  console.log(`Sending welcome email to user: ${user.id}`);
 
   const resend = getResendClient();
   const resp = await resend.emails.send({
     from: process.env.RESEND_FROM ?? "Acme <onboarding@resend.dev>",
-    to: [email],
+    to: [user.email],
     subject: "Welcome!",
     html: "Thanks for joining Acme.",
   });
@@ -99,17 +99,21 @@ export async function sendWelcomeEmail(email: string) {
   return { status: "sent" as const, id: resp.data?.id };
 }
 
-export async function sendOneWeekCheckInEmail(email: string) {
+export async function sendOnboardingEmail(user: Pick<User, "id" | "email">) {
   "use step";
 
-  console.log(`Sending one-week check-in email to ${email}`);
+  if (!user.email.includes("@")) {
+    throw new FatalError("Invalid email");
+  }
+
+  console.log(`Sending onboarding email to user: ${user.id}`);
 
   const resend = getResendClient();
   const resp = await resend.emails.send({
     from: process.env.RESEND_FROM ?? "Acme <onboarding@resend.dev>",
-    to: [email],
-    subject: "How is your first week going?",
-    html: "We hope Acme is working well for you. Reply if you need help.",
+    to: [user.email],
+    subject: "Get started with Acme",
+    html: "Here are a few tips to help you get the most out of Acme.",
   });
 
   if (resp.error) {
