@@ -22,3 +22,10 @@ See `.github/copilot-instructions.md` for full contributor workflow, project str
 - `script/lint` auto-downloads `golangci-lint` v2.5.0 to `bin/` on first run. This is cached across runs.
 - The `github-mcp-server` binary is gitignored. Build it fresh with `go build ./cmd/github-mcp-server`.
 - All lint/test/build commands are fast (~1-2s each when cached).
+
+### Cloud Agent git branches
+
+Cursor Cloud Agents must use an existing ref for checkout and PR base:
+
+- **Base branch:** `Blueprint` (tracks `main`) or `main` directly. Do not use a bare `Blueprint` prefix parsed from feature branch names.
+- **Feature branches:** use `blueprint/<short-description>-ee50` (slash-separated). Avoid `Th_Blueprint<task>` names without a separator — they can be misread as ref `Blueprint` and cause startup failures.
