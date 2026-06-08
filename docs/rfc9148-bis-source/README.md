@@ -17,15 +17,29 @@ This directory holds source material for normative updates to [RFC 9148](https:/
 | `rfc9148-bis-update-fragment.mkd` | mmark/kramdown source with `<section>` anchors aligned to RFC 9148 numbering |
 | `rfc9148-bis-update-fragment.txt` | Plain copy-paste blocks (no tooling required) |
 | `rfc9148-bis-update-fragment-from-xml.txt` | Text rendered from XML via `xml2rfc --text` (validates XML structure) |
+| `rfc9148-bis-skeleton.txt` | **Merged RFC 9148 bis skeleton** (RFC 9148 + all fragment updates applied) |
+| `rfc9148-bis-skeleton.mkd` | Same skeleton wrapped for mmark (regenerate via build script) |
+| `build-rfc9148-bis-skeleton.py` | Script to regenerate the merged skeleton from `rfc9148.txt` |
 | `rfc9148-bis-patch-map.md` | Section-by-section map: RFC 9148 location → action → cBRSKI source |
+| `rfc9148.txt` | Cached RFC 9148 source text (downloaded by build script) |
 
-## Usage
+## Regenerate merged skeleton
+
+```bash
+cd docs/rfc9148-bis-source
+python3 build-rfc9148-bis-skeleton.py
+```
+
+Downloads `rfc9148.txt` if missing, applies all fragment updates, writes
+`rfc9148-bis-skeleton.txt` and `rfc9148-bis-skeleton.mkd`.
+
+## Usage (fragment-only workflow)
 
 1. **Quick copy-paste:** use `rfc9148-bis-update-fragment.txt`.
 2. **Structured editing:** use `rfc9148-bis-update-fragment.mkd` or `rfc9148-bis-update-fragment.xml`.
-3. **Validate XML:** `xml2rfc --text rfc9148-bis-update-fragment.xml` (produces `rfc9148-bis-update-fragment-from-xml.txt`).
-4. For each block, apply the indicated **REPLACE**, **INSERT**, or **ADD** action at that location in the RFC 9148 bis source.
-5. Cross-check against `rfc9148-bis-patch-map.md` and the live cBRSKI draft before submitting to the ANIMA WG or RFC Editor.
+3. **Full merged draft:** use `rfc9148-bis-skeleton.txt` (or regenerate with the build script).
+4. **Validate XML:** `xml2rfc --text rfc9148-bis-update-fragment.xml`.
+5. Cross-check against `rfc9148-bis-patch-map.md` and cBRSKI -31 before WG submission.
 
 ## Scope
 
