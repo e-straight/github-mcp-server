@@ -13,14 +13,19 @@ This directory holds source material for normative updates to [RFC 9148](https:/
 | File | Purpose |
 |------|---------|
 | `draft-ietf-anima-constrained-voucher-31.txt` | Upstream cBRSKI Internet-Draft (reference copy) |
-| `rfc9148-bis-update-fragment.mkd` | Paste-ready replacement/insert text for an RFC 9148 bis, with `<section>` tags aligned to RFC 9148 numbering |
+| `rfc9148-bis-update-fragment.xml` | RFC 7991 v3 XML; render with `xml2rfc --text rfc9148-bis-update-fragment.xml` |
+| `rfc9148-bis-update-fragment.mkd` | mmark/kramdown source with `<section>` anchors aligned to RFC 9148 numbering |
+| `rfc9148-bis-update-fragment.txt` | Plain copy-paste blocks (no tooling required) |
+| `rfc9148-bis-update-fragment-from-xml.txt` | Text rendered from XML via `xml2rfc --text` (validates XML structure) |
 | `rfc9148-bis-patch-map.md` | Section-by-section map: RFC 9148 location → action → cBRSKI source |
 
 ## Usage
 
-1. Open `rfc9148-bis-update-fragment.mkd`.
-2. For each `<section anchor="..." title="...">` block, apply the indicated **REPLACE**, **INSERT**, or **ADD** action at that location in the RFC 9148 bis source.
-3. Cross-check against `rfc9148-bis-patch-map.md` and the live cBRSKI draft before submitting to the ANIMA WG or RFC Editor.
+1. **Quick copy-paste:** use `rfc9148-bis-update-fragment.txt`.
+2. **Structured editing:** use `rfc9148-bis-update-fragment.mkd` or `rfc9148-bis-update-fragment.xml`.
+3. **Validate XML:** `xml2rfc --text rfc9148-bis-update-fragment.xml` (produces `rfc9148-bis-update-fragment-from-xml.txt`).
+4. For each block, apply the indicated **REPLACE**, **INSERT**, or **ADD** action at that location in the RFC 9148 bis source.
+5. Cross-check against `rfc9148-bis-patch-map.md` and the live cBRSKI draft before submitting to the ANIMA WG or RFC Editor.
 
 ## Scope
 

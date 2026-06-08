@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- RFC 9148 bis update fragment. Derived from cBRSKI draft -31. -->
+<rfc category="info" docName="draft-example-est-coaps-rfc9148-bis-fragment-00" ipr="trust200902" submissionType="IETF" version="3">
+  <front>
+    <title abbrev="EST-coaps bis fragment">EST-coaps Updates from cBRSKI (RFC 9148 bis Fragment)</title>
+    <seriesInfo name="Internet-Draft" value="draft-example-est-coaps-rfc9148-bis-fragment-00" stream="IETF"/>
+    <author fullname="Michael Richardson" initials="M." surname="Richardson">
+      <organization>Sandelman Software Works</organization>
+      <address><email>mcr+ietf@sandelman.ca</email></address>
+    </author>
+    <author fullname="Peter van der Stok" initials="P." surname="van der Stok">
+      <organization>vanderstok consultancy</organization>
+      <address><email>stokcons@kpnmail.nl</email></address>
+    </author>
+    <date year="2026" month="June" day="8"/>
+    <abstract>
+      <t>Paste-ready replacement and insertion text for a future RFC 9148 revision, derived from draft-ietf-anima-constrained-voucher-31 (cBRSKI).  Section anchors match target locations in RFC 9148.  Full normative paragraphs appear in sourcecode blocks within each section.</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section anchor="introduction" numbered="true">
+      <name>Introduction</name>
+      <t><xref target="RFC9148"/> defines EST-coaps.  <xref target="CBRSKI"/> Updates <xref target="RFC9148"/>.  This fragment collects EST-coaps-specific deltas in RFC 9148 section order.  See also rfc9148-bis-patch-map.md in this directory for the action map.</t>
+      <t>Each section below is labeled REPLACE, INSERT, or ADD.  Merge into an RFC 9148 bis source; renumber Section 4.x as needed when inserting Sections 4.9 and 4.10.</t>
+    </section>
+
+    <section anchor="front-matter" numbered="true">
+      <name>Front Matter (ADD)</name>
+      <sourcecode>
+Updates: 9148
+
+   This document updates [RFC9148] to specify mandatory DTLS 1.3 cipher
+   suites, DTLS version and record-size requirements for constrained
+   deployments, multipart-core encoding for the /crts resource, server
+   behavior for single-certificate /crts responses (Content-Format 287),
+   and normative procedures for CA certificate renewal and client re-
+   enrollment with trust anchor update.  These updates were first
+   specified in the context of cBRSKI [CBRSKI].
+      </sourcecode>
+    </section>
+
+    <section anchor="rfc9148-3-1" numbered="true">
+      <name>Section 3.1 DTLS Version Requirements (INSERT)</name>
+      <t>INSERT after RFC 9148 Section 3 DTLS 1.3 Supported Groups paragraph.</t>
+      <sourcecode>
+3.1.  DTLS Version Requirements
+
+   DTLS version 1.3 [RFC9147] SHOULD be used in any implementation of
+   this specification.  An EST-coaps server MUST by default support both
+   DTLS 1.3 and DTLS 1.2 client connections.  For security reasons, an
+   EST-coaps server MAY be administratively configured to support only a
+   particular DTLS version or higher.
+
+   An EST-coaps client that implements DTLS 1.3 MUST NOT additionally
+   support DTLS 1.2.  This prevents a rogue server from forcing the
+   client onto DTLS 1.2, reduces the DTLS code attack surface on
+   constrained clients, and keeps more handshake metadata encrypted.
+
+   An exception case where DTLS 1.2 MAY be used is a client on a software
+   platform where a DTLS 1.3 client is not available (yet), for example
+   when a legacy device is software-upgraded to support EST-coaps.
+      </sourcecode>
+    </section>
+
+    <section anchor="rfc9148-3-2" numbered="true">
+      <name>Section 3.2 DTLS Cipher Suite Requirements (REPLACE)</name>
+      <t>REPLACE RFC 9148 Section 3 sentence on future Curve25519 requirement.</t>
+      <sourcecode>
+3.2.  DTLS Cipher Suite Requirements
+
+3.2.1.  DTLS 1.2 Cipher Suites
+
+   In accordance with Sections 3.3 and 4.4 of [RFC7925], the mandatory
+   cipher suite for DTLS 1.2 in EST-coaps is
+   TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8 [RFC7251].  Curve secp256r1 MUST
+   be supported [RFC8422]; this curve is equivalent to the NIST P-256
+   curve.
+
+   An EST-coaps client using DTLS 1.2 MUST implement
+   TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8 and MAY implement other cipher
+   suites.
+
+3.2.2.  DTLS 1.3 Cipher Suites
+
+   An EST-coaps server MUST support the following DTLS 1.3 cipher suites:
+
+   *  the mandatory TLS 1.3 cipher suites as defined in Section 9.1 of
+      [RFC8446] (TLS_AES_128_GCM_SHA256 with the digital signature and
+      key exchange algorithms listed there),
+
+   *  TLS_AES_128_CCM_8_SHA256 (with the same digital signature and key
+      exchange algorithms), and
+
+   *  TLS_AES_128_CCM_SHA256 (with the same digital signature and key
+      exchange algorithms).
+
+   To enable clients whose certificate contains an Ed25519 public key,
+   an EST-coaps server MUST support digital signature algorithm Ed25519
+   and elliptic curve group X25519 (see [RFC8446]).
+
+   Per Section 4.5.3 of [RFC9147], the cipher suite
+   TLS_AES_128_CCM_8_SHA256 cannot be used unless specific measures are
+   taken against packet forgery attacks.  The RECOMMENDED safeguard is
+   to limit the number of records that can fail authentication to at
+   most 2^7, as defined in Appendix B.3 of [RFC9147].  If this measure
+   is applied and the limit is reached, the DTLS connection MUST be
+   closed.
+
+   An EST-coaps client using DTLS 1.3 MUST implement at least one of
+   the above cipher suites supported by the server and MAY implement
+   multiple of these.
+      </sourcecode>
+    </section>
+
+    <section anchor="rfc9148-3-3" numbered="true">
+      <name>Section 3.3 DTLS Fragmentation (INSERT)</name>
+      <t>INSERT after RFC 9148 Section 3 RFC6347 fragmentation quote.</t>
+      <sourcecode>
+3.3.  DTLS Handshake Fragmentation and Record Size Limits
+
+   On constrained networks, particularly when DTLS records are relayed
+   through an intermediary with limited MTU, it is RECOMMENDED that a
+   PMTU of 1024 bytes be assumed for the DTLS handshake and that
+   appropriate DTLS fragmentation be used.
+
+   During EST-coaps operation, the CoAP Block-Wise transfer mechanism
+   [RFC7959] is used automatically when message sizes exceed the PMTU.
+   An EST-coaps client on a constrained network operating as a DTLS 1.2
+   client MUST use the (D)TLS maximum fragment length extension
+   ('max_fragment_length') defined in Section 4 of [RFC6066], with the
+   maximum fragment length set to a value of either 2^9 or 2^10.
+
+   An EST-coaps client operating as a DTLS 1.3 client MUST use the
+   (D)TLS record size limit extension ('record_size_limit') defined in
+   Section 4 of [RFC8449], with RecordSizeLimit set to a value between
+   512 and 1024 (inclusive).
+      </sourcecode>
+    </section>
+
+    <section anchor="rfc9148-4-1" numbered="true">
+      <name>Section 4.1 Resource Discovery (REPLACE and ADD)</name>
+      <sourcecode>
+REPLACE:
+   &lt;/est/crts&gt;;rt="ace.est.crts";ct="281 287",
+WITH:
+   &lt;/est/crts&gt;;rt="ace.est.crts";ct="62 281 287",
+
+(Same ct change in non-default port example.)
+
+ADD after "The server MUST support the default /.well-known/est root
+resource.":
+
+   The resource type value "ace.est" identifies a base resource in a
+   resource hierarchy on a CoAP server, where its sub-resources each
+   have one of the resource types "ace.est.*" as defined in this
+   specification.
+      </sourcecode>
+    </section>
+
+    <section anchor="rfc9148-4-3" numbered="true">
+      <name>Section 4.3 Payload Formats (REPLACE and ADD)</name>
+      <sourcecode>
+REPLACE /crts paragraphs in Section 4.3:
+
+   Content-Format 281 (application/pkcs7-mime; smime-type=certs-only)
+   MUST be supported by EST-coaps servers for the /crts resource.
+   Content-Format 287 (application/pkix-cert) MAY be supported to carry
+   a single certificate instead of a PKCS #7 container.  Content-Format
+   62 (application/multipart-core) MUST be supported for the /crts
+   resource as specified in this section.
+
+   The client uses a CoAP Accept Option in the request to express the
+   preferred response Content-Format.  If an Accept Option is not
+   included in the request, the client is not expressing any preference
+   and the server SHOULD choose format 281.
+
+   When an EST-coaps server receives a /crts request with a CoAP Accept
+   Option with value 287 (application/pkix-cert), it MUST return only
+   the single CA certificate that is the envisioned or actual issuing
+   CA for the currently authenticated client.  An exception is when the
+   domain is configured to operate with multiple CA trust anchors
+   exclusively: in that case the server returns a 4.06 (Not Acceptable)
+   response to signal that the client MUST request a content-format that
+   supports retrieval of multiple CA certificates.
+
+   A representation with Content-Format identifier 62 for the /crts
+   resource contains a collection of CA certificates.  The multipart
+   collection MUST contain each CA certificate encoded as an
+   application/pkix-cert (287) representation.  The order of CA
+   certificates MUST be in the CA hierarchy order, starting from the
+   issuer of the client's certificate first, up to the highest-level
+   domain CA, then optionally followed by any further CA certificates
+   that are not part of this hierarchy (which may be Third-party TAs as
+   defined in [RFC7030]).  The highest-level domain CA may or may not be
+   a root CA certificate.
+
+   The total number of CA certificates in a /crts response SHOULD be 1,
+   2, or 3.  A domain operator MAY configure a higher number if all
+   enrolled clients are known to support larger trust anchor sets.  To
+   facilitate reliable transfer over constrained networks, the server
+   MUST support CoAP Block-Wise transfer for the /crts response and MUST
+   support the Size2 Option [RFC7959] to provide the total resource
+   length in bytes when requested by a client.
+
+   As an example, for a two-level CA domain PKI, a /crts response using
+   Content-Format 62 may contain, in CBOR diagnostic notation:
+
+   [ 287, h'3082...', 287, h'3082...' ]
+
+ADD at end of Section 4.3:
+
+   Content-Format 287 (application/pkix-cert) MUST be supported by an
+   EST-coaps server as a response payload for the /sen and /sren
+   resources.
+      </sourcecode>
+    </section>
+
+    <section anchor="rfc9148-4-5" numbered="true">
+      <name>Section 4.5 CoAP Response Codes (ADD)</name>
+      <sourcecode>
+   For a /crts GET request where the server cannot satisfy the Accept
+   Option (for example, when the client requests Content-Format 287 but
+   the domain requires return of multiple CA certificates), the server
+   returns 4.06 (Not Acceptable).
+      </sourcecode>
+    </section>
+
+    <section anchor="rfc9148-4-9" numbered="true">
+      <name>Section 4.9 Renewal of CA Certificates (INSERT)</name>
+      <sourcecode>
+4.9.  Renewal of CA Certificates
+
+   An EST-coaps client that has an estimate of the current time
+   (internally, or via a time synchronization mechanism) SHOULD consider
+   the validity time of its trust anchor CA(s) and MAY begin requesting
+   new trust anchor certificate(s) using a /crts request when a CA has
+   50% of its validity period (notAfter minus notBefore) remaining.
+
+   A client without access to accurate time cannot determine whether
+   trust anchor CA(s) have expired and SHOULD poll periodically for new
+   trust anchor certificate(s) using a /crts request at an interval of
+   approximately one month.
+
+   An EST-coaps server SHOULD include the CoAP ETag Option ([RFC7252],
+   Section 5.10.6) in every response to a /crts request, to enable
+   clients to perform low-overhead validation of whether their trust
+   anchor CA is still current.  The EST-coaps client SHOULD store the
+   ETag from a /crts response and SHOULD use this value in an ETag
+   Option in its next GET /crts request.
+      </sourcecode>
+    </section>
+
+    <section anchor="rfc9148-4-10" numbered="true">
+      <name>Section 4.10 Re-enrollment Procedure (INSERT)</name>
+      <sourcecode>
+4.10.  Re-enrollment Procedure
+
+   For simple re-enrollment, the EST-coaps client MUST support the
+   following procedure.  During this procedure the EST-coaps server MAY
+   re-enroll the client into a new domain or into a new sub-CA within a
+   larger domain.
+
+   1.  The client connects with DTLS to the EST-coaps server and
+       authenticates with its present domain certificate as usual.  The
+       EST-coaps server authenticates itself with its Registration
+       Authority (RA) certificate that is currently trusted by the
+       client, i.e., it chains to a trust anchor CA stored in the
+       client's Explicit Trust Anchor database.  The client verifies
+       that the server is an RA of the domain as required by
+       Section 3.6.1 of [RFC7030] before proceeding.
+
+   2.  The client performs the simple re-enrollment request (/sren) and,
+       upon success, obtains a new certificate.
+
+   3.  The client verifies the new certificate against its Explicit
+       Trust Anchor database.  If the new certificate chains
+       successfully to a trust anchor, the client MAY skip retrieving
+       the current CA certificates using a /crts request.  If it does
+       not chain successfully, the client MUST retrieve the new domain
+       trust anchors using a /crts request.
+
+   4.  If the client retrieved new trust anchor(s) in step 3, it MUST
+       verify that the new certificate obtained in step 2 chains to the
+       new trust anchor(s).  If verification succeeds, the client
+       stores the new trust anchor(s) in its Explicit Trust Anchor
+       database, accepts the new certificate, and stops using its prior
+       certificate.  If verification fails, the client MUST NOT update
+       its certificate, MUST NOT update its Explicit Trust Anchor
+       database, and MUST abort the re-enrollment procedure.
+
+   Even when the client skips the /crts request in step 3, it SHOULD
+   still support renewal of trust anchors as specified in Section 4.9.
+
+4.10.1.  Change of Domain Trust Anchor(s)
+
+   Domain trust anchor(s) may change over time due to relocation of the
+   client to a new domain or subdomain, or due to a key update of a
+   trust anchor as described in [RFC4210], Section 4.4.  From the
+   client's viewpoint, a trust anchor change is handled during EST-coaps
+   re-enrollment: a change of domain CA requires devices operating under
+   the old domain CA to acquire a new certificate issued by the new
+   domain CA.
+
+   The mechanism described in [RFC7030], Section 4.1.3 and [RFC4210],
+   Section 4.4 for root CA key update requires four certificates:
+   OldWithOld, OldWithNew, NewWithOld, and NewWithNew.  The OldWithOld
+   certificate is already stored in the client's Explicit Trust Anchor
+   database.  The other certificates are provided to the client in a
+   /crts response during the re-enrollment procedure of Section 4.10.
+      </sourcecode>
+    </section>
+
+    <section anchor="rfc9148-8-2" numbered="true">
+      <name>Section 8.2 Resource Type Registry (ADD)</name>
+      <sourcecode>
+     +==========+===============================================+
+     | ace.est  | Base resource of all EST-coaps resources      |
+     +==========+===============================================+
+      </sourcecode>
+    </section>
+
+    <section anchor="informative-cbrski" numbered="true">
+      <name>Informative: cBRSKI-only (NOT for RFC 9148 bis)</name>
+      <sourcecode>
+   During BRSKI/cBRSKI onboarding, if the voucher pins a single domain
+   CA certificate, the Pledge MAY use that certificate as a provisional
+   EST trust anchor and proceed with /sen before performing /crts,
+   subject to chaining checks defined in [CBRSKI], Section 6.7.1.
+
+   On enrollment failure, cBRSKI uses BRSKI enrollment status telemetry
+   (POST /.well-known/brski/es).  Pure EST-coaps servers need not
+   implement /es.
+      </sourcecode>
+    </section>
+  </middle>
+
+  <back>
+    <references>
+      <name>Normative References</name>
+      <reference anchor="RFC9148" target="https://www.rfc-editor.org/info/rfc9148">
+        <front>
+          <title>EST over secure CoAP (EST-coaps)</title>
+          <author initials="P." surname="van der Stok" fullname="Peter van der Stok"/>
+          <date year="2022" month="April"/>
+        </front>
+        <seriesInfo name="RFC" value="9148"/>
+      </reference>
+    </references>
+    <references>
+      <name>Informative References</name>
+      <reference anchor="CBRSKI" target="https://datatracker.ietf.org/doc/draft-ietf-anima-constrained-voucher/">
+        <front>
+          <title>Constrained Bootstrapping Remote Secure Key Infrastructure (cBRSKI)</title>
+          <author surname="Richardson" initials="M." fullname="Michael Richardson"/>
+          <date year="2026" month="June" day="8"/>
+        </front>
+        <seriesInfo name="Internet-Draft" value="draft-ietf-anima-constrained-voucher-31"/>
+      </reference>
+    </references>
+  </back>
+</rfc>
